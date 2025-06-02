@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramas de Venn Interactivos</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-cyan: #02ffe6;
+            --primary-black: #000000;
+            --primary-white: #ffffff;
+            --accent-purple: #9000ff;
+            --accent-pink: #FF69B4;
+            --accent-magenta: #FF1493;
+            --accent-blue: #00b7ff;
+            --accent-lavender: #DDA0DD;
+            --glow-effect: 0 0 20px rgba(2, 255, 230, 0.4);
+            --shadow-neon: 0 0 30px rgba(255, 105, 180, 0.3);
+            --gradient-primary: linear-gradient(135deg, #FF69B4 0%, #02ffe6 100%);
+            --gradient-dark: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%);
+            --set-a: #FF69B4;
+            --set-b: #02ffe6;
+            --set-c: #9000ff;
+            --intersection: #FFB6C1;
+        }
+
+        /* --- Reset y configuración base --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, 'Montserrat', sans-serif;
+            background-color: var(--primary-black);
+            color: var(--primary-cyan);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            background: radial-gradient(circle at 20% 80%, rgba(255, 105, 180, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(2, 255, 230, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(144, 0, 255, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 15s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            50% {
+                transform: scale(1.1) rotate(2deg);
+            }
+        }
+
+        /* --- Partículas flotantes --- */
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-cyan);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: floatParticle 12s infinite linear;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* --- Header moderno --- */
+        .main-header {
+            background: var(--gradient-dark);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(2, 255, 230, 0.2);
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-primary);
+            animation: headerGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes headerGlow {
+            0% {
+                left: -100%;
+            }
+
+            50% {
+                left: 100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .main-header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 600;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .main-header p {
+            font-size: 1.2rem;
+            color: var(--primary-white);
+            opacity: 0.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* --- Navegación moderna --- */
+        .modern-nav {
+            position: sticky;
+            top: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(2, 255, 230, 0.1);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::before {
+            width: 80%;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-white);
+            background: rgba(2, 255, 230, 0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--glow-effect);
+        }
+
+        /* --- Container principal --- */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* --- Cards modernas --- */
+        .content-card {
+            background: var(--gradient-dark);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(2, 255, 230, 0.2);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--gradient-primary);
+            opacity: 0.5;
+        }
+
+        .content-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-neon);
+            border-color: var(--accent-pink);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            color: var(--primary-cyan);
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .card-content {
+            color: var(--primary-white);
+            opacity: 0.9;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        /* --- Diagramas de Venn modernos --- */
+        .venn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 3rem 0;
+            padding: 3rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            border: 1px solid rgba(2, 255, 230, 0.1);
+            min-height: 400px;
+        }
+
+        .venn-diagram {
+            position: relative;
+            width: 450px;
+            height: 350px;
+        }
+
+        .venn-set-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.3rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .venn-set-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px currentColor;
+        }
+
+        .venn-set-a {
+            width: 220px;
+            height: 220px;
+            top: 65px;
+            left: 60px;
+            background: rgba(255, 105, 180, 0.15);
+            border-color: var(--set-a);
+            color: var(--set-a);
+        }
+
+        .venn-set-b {
+            width: 220px;
+            height: 220px;
+            top: 65px;
+            right: 60px;
+            background: rgba(2, 255, 230, 0.15);
+            border-color: var(--set-b);
+            color: var(--set-b);
+        }
+
+        .intersection-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--intersection);
+            font-weight: bold;
+            z-index: 10;
+            font-size: 1.1rem;
+        }
+
+        /* --- Botones modernos --- */
+        .modern-button {
+            background: var(--gradient-dark);
+            color: var(--primary-cyan);
+            border: 1px solid var(--primary-cyan);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            margin: 0.5rem;
+        }
+
+        .modern-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(2, 255, 230, 0.2), transparent);
+            transition: 0.6s;
+        }
+
+        .modern-button:hover::before {
+            left: 100%;
+        }
+
+        .modern-button:hover {
+            background: rgba(2, 255, 230, 0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--glow-effect);
+            color: var(--primary-white);
+        }
+
+        /* --- Inputs modernos --- */
+        .modern-input {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(2, 255, 230, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--primary-cyan);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+
+        .modern-input:focus {
+            outline: none;
+            border-color: var(--accent-pink);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* --- Controles interactivos --- */
+        .interactive-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(2, 255, 230, 0.1);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-label {
+            color: var(--primary-cyan);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Resultados --- */
+        .result-display {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--gradient-dark);
+            border-radius: 12px;
+            border: 1px solid var(--accent-pink);
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--primary-white);
+            box-shadow: var(--shadow-neon);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Notación matemática --- */
+        .math-notation {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--accent-pink);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-cyan);
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        /* --- Ejemplo box --- */
+        .example-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(2, 255, 230, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(144, 0, 255, 0.2);
+        }
+
+        .example-title {
+            color: var(--accent-pink);
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* --- Lista personalizada --- */
+        .custom-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .custom-list li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-white);
+            opacity: 0.9;
+        }
+
+        .custom-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary-cyan);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* --- Footer moderno --- */
+        .modern-footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--gradient-dark);
+            border-top: 1px solid rgba(2, 255, 230, 0.2);
+            margin-top: 4rem;
+        }
+
+        .modern-footer p {
+            color: var(--primary-white);
+            opacity: 0.7;
+        }
+
+        /* --- Operaciones visuales --- */
+        .operation-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .operation-step {
+            text-align: center;
+            margin: 1rem;
+        }
+
+        .operation-step h4 {
+            color: var(--primary-cyan);
+            margin-bottom: 0.5rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .conjunto-tipo {
+            display: inline-block;
+            background: rgba(144, 0, 255, 0.2);
+            color: var(--accent-pink);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin: 0.2rem;
+            border: 1px solid var(--primary-cyan);
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+                margin: 1rem 0;
+            }
+
+            .nav-menu {
+                gap: 1rem;
+            }
+
+            .venn-diagram {
+                width: 350px;
+                height: 280px;
+            }
+
+            .venn-set-circle {
+                width: 180px;
+                height: 180px;
+                font-size: 1.1rem;
+            }
+
+            .interactive-controls {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .venn-diagram {
+                width: 280px;
+                height: 220px;
+            }
+
+            .venn-set-circle {
+                width: 140px;
+                height: 140px;
+                font-size: 1rem;
+            }
+        }
+
+        /* --- Animaciones adicionales --- */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(2, 255, 230, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(2, 255, 230, 0.6);
+            }
+        }
+
+        /* === SOLO ESTAS CLASES NUEVAS PARA LA FUNCIONALIDAD INTERACTIVA === */
+        .interactive-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .controls-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(2, 255, 230, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .venn-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(2, 255, 230, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+        }
+
+        .svg-container {
+            width: 100%;
+            max-width: 400px;
+            height: 350px;
+            position: relative;
+        }
+
+        .venn-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .set-circle {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .set-circle:hover {
+            filter: brightness(1.2);
+            stroke-width: 4;
+        }
+
+        .set-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            cursor: pointer;
+        }
+
+        .input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .operation-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .modern-button.active {
+            background: rgba(255, 105, 180, 0.2);
+            border-color: var(--accent-pink);
+            color: var(--accent-pink);
+        }
+
+        .info-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(2, 255, 230, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .info-title {
+            color: var(--accent-pink);
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .element-tag {
+            display: inline-block;
+            background: rgba(144, 0, 255, 0.2);
+            color: var(--accent-pink);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin: 0.2rem;
+            border: 1px solid var(--primary-cyan);
+        }
+
+        @media (max-width: 768px) {
+            .interactive-section {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .svg-container {
+                max-width: 300px;
+                height: 280px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fondo animado -->
+    <div class="animated-background"></div>
+
+    <!-- Partículas flotantes -->
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- Header principal -->
+    <header class="main-header">
+        <h1>Conjuntos Matemáticos</h1>
+        <p>La teoría de conjuntos, dentro de la lógica, es fundamental, ya que permite desarrollar la simbolización y
+            representación de las proposiciones y sus respectivas funciones de manera grafica.</p>
+    </header>
+
+    <!-- Navegación -->
+    <nav class="modern-nav">
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="#definicion" class="nav-link">Definición</a></li>
+                <li><a href="#notacion" class="nav-link">Notación</a></li>
+                <li><a href="#descripcion" class="nav-link">Descripción</a></li>
+                <li><a href="#venn" class="nav-link">Diagramas de Venn</a></li>
+                <li><a href="#tipos" class="nav-link">Tipos</a></li>
+                <li><a href="#operaciones" class="nav-link">Operaciones</a></li>
+                <li><a href="#Ejemplos" class="nav-link">Ejemplo visual</a></li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="main-container">
+
+        <!-- 1. Definición de Conjunto -->
+        <section id="definicion" class="content-card fade-in-up">
+            <h2 class="card-title">🔵 Definición de Conjunto</h2>
+            <div class="card-content">
+                <p>Un <strong>conjunto</strong> es una colección bien definida de objetos distintos, llamados
+                    <em>elementos</em> o <em>miembros</em> del conjunto. Los elementos pueden ser números, letras,
+                    personas, objetos físicos, o incluso otros conjuntos.
+                </p>
+
+                <div class="example-box">
+                    <div class="example-title">Características principales:</div>
+                    <ul class="custom-list">
+                        <li>Los elementos están bien definidos (no hay ambigüedad)</li>
+                        <li>No importa el orden de los elementos</li>
+                        <li>Los elementos no se repiten</li>
+                        <li>Se representan generalmente con letras mayúsculas</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">Ejemplo Visual:</div>
+                    <p>Imagina una caja que contiene diferentes frutas:</p>
+                    <div class="math-notation">A = {manzana, naranja, plátano, uva}</div>
+                    <p>Cada fruta es un elemento del conjunto A.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Notación de conjuntos -->
+        <section id="notacion" class="content-card fade-in-up">
+            <h2 class="card-title">📝 Notación de Conjuntos</h2>
+            <div class="card-content">
+                <p>Los conjuntos se representan usando símbolos específicos que nos permiten expresar relaciones y
+                    operaciones de manera precisa.</p>
+
+                <div class="example-box">
+                    <div class="example-title">Símbolos Fundamentales:</div>
+                    <ul class="custom-list">
+                        <li><strong>{ }</strong> - Llaves para delimitar el conjunto</li>
+                        <li><strong>∈</strong> - "Pertenece a" (a ∈ A significa que a es elemento de A)</li>
+                        <li><strong>∉</strong> - "No pertenece a" (b ∉ A significa que b no es elemento de A)</li>
+                        <li><strong>∅ o { }</strong> - Conjunto vacío</li>
+                        <li><strong>⊆</strong> - "Subconjunto de"</li>
+                        <li><strong>⊂</strong> - "Subconjunto propio de"</li>
+                        <li><strong>|A|</strong> - Cardinalidad (número de elementos)</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">📌 Ejemplos de Notación en Conjuntos</div>
+                    <ul class="custom-list">
+                        <li>Notación de conjunto por extensión o enumerativa: (Conjunto de vocales) V={a,e,i,o,u} </li>
+                        <li> Notación de conjunto por comprensión o descriptiva: B={x∈N∣x
+                            <10} "B es el conjunto de todos los números naturales menores que 10" .</li>
+                        <li>Notación de pertenencia y no pertenencia: x∈A significa: "x pertenece a A".</li>
+                        <li>Notación de subconjuntos: A⊆B: A es subconjunto de B (puede ser igual o menor).</li>
+                    </ul>
+                </div>
+
+        </section>
+
+        <!-- 3. Descripción por extensión y comprensión -->
+        <section id="descripcion" class="content-card fade-in-up">
+            <h2 class="card-title">📋 Descripción de Conjuntos</h2>
+            <div class="card-content">
+
+                <h3 style="color: var(--accent-pink); margin: 1.2rem 0 0.8rem;">Por Extensión (Enumeración)</h3>
+                <p>Se listan todos los elementos del conjunto separados por comas y encerrados entre llaves.</p>
+
+                <div class="example-box">
+                    <div class="example-title">Ejemplos por Extensión:</div>
+                    <div class="math-notation">A={2,4,6,8,10} - Se lee: "A es el conjunto de los números 2, 4, 6, 8 y
+                        10."</div>
+                    <div class="math-notation">B = {a, e, i, o, u}</div>
+                    <div class="math-notation">C = {rojo, azul, verde, amarillo}</div>
+                    <div class="math-notation">D = {lunes, martes, miércoles, jueves, viernes, sábado, domingo}</div>
+                </div>
+
+                <h3 style="color: var(--accent-pink); margin: 1.2rem 0 0.8rem;">Por Comprensión </h3>
+                <p>Se describe una propiedad que caracteriza a todos los elementos del conjunto.</p>
+
+                <div class="example-box">
+                    <div class="example-title">Ejemplos por Comprensión:</div>
+                    <div class="math-notation">A = {x ∈ N∣ x es par y x ≤ 10} - Se lee: "A es el conjunto de todos los
+                        números naturales que son pares y menores o iguales a 10."</div>
+                    <div class="math-notation">B = {x | x es una vocal del alfabeto español}</div>
+                    <div class="math-notation">C = {x | x es un color primario o secundario}</div>
+                    <div class="math-notation">D = {x | x es un día de la semana}</div>
+                    <div class="math-notation">E = {x ∈ ℕ | x² < 25}={1, 2, 3, 4}</div>
+                    </div>
+
+                    <div class="interactive-controls">
+                        <div class="control-group">
+                            <label class="control-label" for="tipo-descripcion">Tipo de descripción:</label>
+                            <select id="tipo-descripcion" class="modern-input" onchange="cambiarTipoDescripcion()">
+                                <option value="extension">Por Extensión</option>
+                                <option value="comprension">Por Comprensión</option>
+                            </select>
+                        </div>
+                        <button class="modern-button" onclick="generarEjemplo()">Generar Ejemplo</button>
+                    </div>
+                    <div class="result-display" id="resultado-descripcion">
+                        Selecciona un tipo de descripción para ver ejemplos
+                    </div>
+                </div>
+        </section>
+        <script>
+            let tipoDescripcion = 'extension';
+            function cambiarTipoDescripcion() {
+                const select = document.getElementById('tipo-descripcion');
+                tipoDescripcion = select.value;
+            }
+            function generarEjemplo() {
+                const resultado = document.getElementById('resultado-descripcion');
+                let ejemplo;
+                if (tipoDescripcion === 'extension') {
+                    ejemplo = 'A = {1, 2, 3, 4, 5}';
+                } else if (tipoDescripcion === 'comprension') {
+                    ejemplo = 'A = {x | x es un número natural menor que 6}';
+                }
+                resultado.innerText = `Ejemplo de descripción ${tipoDescripcion}: ${ejemplo}`;
+            }
+        </script>
+
+        <!-- 4. Diagrama de Venn -->
+        <section id="venn" class="content-card fade-in-up">
+            <h2 class="card-title">🎯 Diagramas de Venn</h2>
+            <div class="card-content">
+                <p>Los diagramas de Venn son representaciones gráficas que muestran las relaciones entre conjuntos
+                    mediante círculos u otras formas geométricas.</p>
+
+                <h3 style="color: var(--accent-pink); margin: 1.2rem 0 0.8rem;">Usos y Utilidades</h3>
+                <ul class="custom-list">
+                    <li>Visualizar relaciones entre conjuntos</li>
+                    <li>Resolver problemas de lógica y probabilidad</li>
+                    <li>Organizar información de manera clara</li>
+                    <li>Facilitar el aprendizaje de operaciones entre conjuntos</li>
+                    <li>Análisis de datos y clasificación</li>
+                </ul>
+                <div class="example-box">
+                    <div class="example-title">Ejemplo Práctico:</div>
+                    <p><strong>Estudiantes en una clase:</strong></p>
+                    <ul class="custom-list">
+                        <li>A = Estudiantes que practican fútbol</li>
+                        <li>B = Estudiantes que practican baloncesto</li>
+                        <li>A ∩ B = Estudiantes que practican ambos deportes</li>
+                        <li>A ∪ B = Estudiantes que practican al menos un deporte</li>
+                    </ul>
+                </div>
+        </section>
+
+        <!-- 5. Tipos de conjunto -->
+        <section id="tipos" class="content-card fade-in-up">
+            <h2 class="card-title">🔢 Tipos de Conjuntos</h2>
+            <div class="card-content">
+
+
+                <!-- Tipos básicos por cardinalidad -->
+                <div class="operation-visual">
+                    <div class="operation-step">
+                        <h4>Finito</h4>
+                        <div class="conjunto-tipo">|A| = n</div>
+                        <p>Número limitado de elementos</p>
+                        <div class="set-notation">A = {1, 2, 3, 4}</div>
+                    </div>
+                    <div class="operation-step">
+                        <h4>Infinito</h4>
+                        <div class="conjunto-tipo">|A| = ∞</div>
+                        <p>Número ilimitado de elementos</p>
+                        <div class="set-notation">ℕ = {1, 2, 3, ...}</div>
+                    </div>
+                    <div class="operation-step">
+                        <h4>Vacío</h4>
+                        <div class="conjunto-tipo">|∅| = 0</div>
+                        <p>Sin elementos</p>
+                        <div class="set-notation">∅ = { }</div>
+                    </div>
+                    <div class="operation-step">
+                        <h4>Unitario</h4>
+                        <div class="conjunto-tipo">|A| = 1</div>
+                        <p>Exactamente un elemento</p>
+                        <div class="set-notation">A = {5}</div>
+                    </div>
+                </div>
+
+
+                <!-- Tipos por relaciones entre conjuntos -->
+                <div class="operation-visual">
+                    <h3>🔗 Relaciones entre Conjuntos</h3>
+                    <div class="operation-step">
+                        <h4>Equivalentes</h4>
+                        <div class="conjunto-tipo">A ~ B</div>
+                        <p>Misma cardinalidad</p>
+                        <div class="set-notation">{a, b, c} ~ {1, 2, 3}</div>
+                    </div>
+                    <div class="operation-step">
+                        <h4>Disjuntos</h4>
+                        <div class="conjunto-tipo">A ∩ B = ∅</div>
+                        <p>Sin elementos comunes</p>
+                        <div class="set-notation">{1, 2} ∩ {3, 4} = ∅</div>
+                    </div>
+                    <div class="operation-step">
+                        <h4>Subconjunto</h4>
+                        <div class="conjunto-tipo">A ⊆ B</div>
+                        <p>Todos los elementos de A están en B</p>
+                        <div class="set-notation">{1, 2} ⊆ {1, 2, 3}</div>
+                    </div>
+                </div>
+
+                <!-- Tipos especiales -->
+                <div class="operation-visual">
+                    <h3>🎯 Conjuntos Especiales</h3>
+                    <div class="operation-step">
+                        <h4>Universal (U)</h4>
+                        <div class="conjunto-tipo">Referencia</div>
+                        <p>Contiene todos los elementos del contexto</p>
+                        <div class="set-notation">U = {1, 2, 3, 4, 5, 6, 7, 8, 9}</div>
+                    </div>
+                    <div class="operation-step">
+                        <h4>Complementario</h4>
+                        <div class="conjunto-tipo">A' = U - A</div>
+                        <p>Elementos que NO están en A</p>
+                        <div class="set-notation">Si A = {1, 3, 5}, entonces A' = {2, 4, 6, 7, 8, 9}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">Clasificación Completa de Tipos:</div>
+                <div class="tipos-grid">
+                    <div class="tipo-categoria">
+                        <h4>📊 Por Cardinalidad</h4>
+                        <ul class="custom-list">
+                            <li><strong>Finito:</strong> A = {a, b, c, d} - Tiene exactamente 4 elementos</li>
+                            <li><strong>Infinito:</strong> ℝ = {números reales} - Tiene infinitos elementos</li>
+                            <li><strong>Vacío:</strong> A = {x | x es par e impar} = ∅</li>
+                            <li><strong>Unitario:</strong> A = {5} - Tiene exactamente un elemento</li>
+                        </ul>
+                    </div>
+
+                    <div class="tipo-categoria">
+                        <h4>🔗 Por Relaciones</h4>
+                        <ul class="custom-list">
+                            <li><strong>Equivalentes:</strong> A = {1, 2, 3} ~ B = {a, b, c}</li>
+                            <li><strong>Disjuntos:</strong> A = {1, 2} y B = {3, 4} → A ∩ B = ∅</li>
+                            <li><strong>Subconjunto:</strong> A = {1, 2} ⊆ B = {1, 2, 3, 4}</li>
+                        </ul>
+                    </div>
+
+                    <div class="tipo-categoria">
+                        <h4>🎯 Especiales</h4>
+                        <ul class="custom-list">
+                            <li><strong>Universal:</strong> U = {todos los elementos del contexto}</li>
+                            <li><strong>Complementario:</strong> A' = U - A (lo que NO está en A)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">Ejemplos de los tipos de conjuntos:</div>
+                <div class="tipos-grid">
+                    <div class="tipo-categoria">
+                        <h4>🔢 Finitos</h4>
+                        <ul class="custom-list">
+                            <li><strong>Estudiantes de tu clase: {Ana, Luis, María}</li>
+                            <li><strong>IDías de la semana: {L, M, X, J, V, S, D}</li>
+                        </ul>
+                    </div>
+
+                    <div class="tipo-categoria">
+                        <h4>∞ Infinitos</h4>
+                        <ul class="custom-list">
+                            <li><strong>Números naturales: ℕ = {1, 2, 3, ...}</li>
+                            <li><strong>DPuntos en una recta</li>
+                        </ul>
+                    </div>
+
+                    <div class="tipo-categoria">
+                        <h4>∅ Vacíos</h4>
+                        <ul class="custom-list">
+                            <li><strong>Dragones reales: ∅</li>
+                            <li><strong>{x | x > 5 y x < 3}=∅</li>
+
+                                        <div class="tipo-categoria">
+                                            <h4>1️⃣ Unitarios</h4>
+                                            <ul class="custom-list">
+                                                <li><strong>Presidente actual: {Biden}</li>
+                                                <li><strong> Capital de Francia: {París}</li>
+                                            </ul>
+
+                                            <div class="tipo-categoria">
+                                                <h4>⚡ Disjuntos</h4>
+                                                <ul class="custom-list">
+                                                    <li><strong>Pares: {2, 4, 6} e Impares: {1, 3, 5}</li>
+                                                    <li><strong>Mayúsculas: {A, B} y números: {1, 2}</li>
+                                                </ul>
+
+                                                <div class="tipo-categoria">
+                                                    <h4>🌍 Universal</h4>
+                                                    <ul class="custom-list">
+                                                        <li><strong> En matemáticas: U = ℝ (todos los reales)</li>
+                                                        <li><strong>En una escuela: U = {todos los estudiantes}</li>
+                                                    </ul>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+                <!--6. operaciones con conjuntos -->
+    
+        <section id="operaciones" class="content-card fade-in-up">
+            <h2 class="card-title">Operaciones entre conjuntos</h2>
+            <div class="card-content">
+                <br>
+                
+                <h2>🔗 Unión de Conjuntos</h2>
+            <div class="definition">
+                <strong>Definición:</strong> La unión de dos conjuntos A y B es el conjunto que contiene todos los elementos que pertenecen a A, a B, o a ambos.
+            </div>
+
+            <div class="visual">
+                <div class="set set-a">
+                  
+                <div class="example-box">
+                    <div class="example-title">Ejemplo Práctico 1:</div>
+                    <p><strong> A ∪ B = {x | x ∈ A ∨ x ∈ B}</strong></p>
+                    <ul class="custom-list">
+                        <br>
+                        <h3>Conjunto A</h3>
+                        <li> {1, 2, 3, 4}</li>
+                        <h3>Conjunto B</h3>
+                        <li>{3, 4, 5, 6}</li>
+                        <h3>Union conjunto A y B</h3>
+                        <li>A ∪ B= {1, 2, 3, 4, 5, 6}</li>
+                    </ul>
+                     <div class="example-title">Ejemplo Práctico 2:</div>
+                    <p><strong> A ∪ B = {x | x ∈ A ∨ x ∈ B}</strong></p>
+                    <ul class="custom-list">
+                        <br>
+                        <h3>Conjunto A</h3>
+                        <li>  {a, b, c}</li>
+                        <h3>Conjunto B</h3>
+                        <li>{c, d, e}</li>
+                        <h3>Union conjunto A y B</h3>
+                        <li>A ∪ B=  {a, b, c, d, e}</li>
+                    </ul>
+            </div>
+
+             <div class="visual">
+                <div class="set set-a">
+                    
+            <div class="calculator-box">
+                    <div class="example-title">🧮 Calculadora de Unión</div>
+
+                <div class="input-group">
+                    <label for="union-a">Conjunto A (separar elementos con comas):</label>
+                    <input type="text" id="union-a" class="modern-input" placeholder="1, 2, 3, 4">
+                </div>
+                <div class="input-group">
+                    <label for="union-b">Conjunto B (separar elementos con comas):</label>
+                    <input type="text" id="union-b" class="modern-input" placeholder="3, 4, 5, 6">
+                </div>
+                <button class="calculate-btn" onclick="calculateUnion()">Calcular Unión</button>
+                <div id="union-result" class="result-display" style="display: none;"></div>
+                
+            </div>
+        </div>
+        <!-- INTERSECCIÓN -->
+
+         <div class="visual">
+                <div class="set set-a">
+                  
+                <div class="example-box">
+          <h2>🎯 Intersección de Conjuntos</h2>
+            <div class="definition">
+                <strong>Definición:</strong> La intersección de dos conjuntos A y B es el conjunto que contiene todos los elementos que pertenecen tanto a A como a B.
+            </div>
+
+            <div class="visual">
+                <div class="set set-a">
+                  
+                <div class="example-box">
+                    <div class="example-title">Ejemplo Práctico:</div>
+                    <p><strong> A ∩ B = {x | x ∈ A ∧ x ∈ B}</strong></p>
+                    <ul class="custom-list">
+                        <br>
+                        <h3>Conjunto A</h3>
+                        <li> {1, 2, 3, 4}</li>
+                        <h3>Conjunto B</h3>
+                        <li>{3, 4, 5, 6}</li>
+                        <h3>Intersección conjunto A y B</h3>
+                        <li>A ∩ B= {3, 4}</li>
+                    </ul>
+                     <div class="example-title">Ejemplo Práctico 2:</div>
+                    <p><strong> A ∪ B = {x | x ∈ A ∨ x ∈ B}</strong></p>
+                    <ul class="custom-list">
+                        <br>
+                        <h3>Conjunto A</h3>
+                        <li>  {a, b, c}</li>
+                        <h3>Conjunto B</h3>
+                        <li>{c, d, e}</li>
+                        <h3>Intersección conjunto A y B</h3>
+                        <li>A ∩ B = {c}</li>
+                    </ul>
+            </div>
+
+
+            <div class="calculator">
+                <h3>🧮 Calculadora de Intersección</h3>
+                <div class="input-group">
+                    <label for="intersect-a">Conjunto A:</label>
+                    <input type="text" id="intersect-a" class="modern-input" placeholder="1, 2, 3, 4">
+                </div>
+                <div class="input-group">
+                    <label for="intersect-b">Conjunto B:</label>
+                    <input type="text" id="intersect-b" class="modern-input" placeholder="3, 4, 5, 6">
+                </div>
+                <button class="calculate-btn" onclick="calculateIntersection()">Calcular Intersección</button>
+                <div id="intersect-result" class="result-display" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- DIFERENCIA -->
+           <div class="visual">
+                <div class="set set-a">
+                  
+                <div class="example-box">
+        <div class="operation fade-in-up">
+            <h2>➖ Diferencia de Conjuntos</h2>
+            
+            <div class="definition">
+                <strong>Definición:</strong> La diferencia de A menos B es el conjunto de elementos que pertenecen a A pero no a B.
+            </div>
+            
+            <div class="visual">
+                <div class="set set-a">
+            
+                    <div class="example-box">
+                        <div class="example-title">Ejemplo Práctico:</div>
+                        <p><strong> A - B = A \ B = {x | x ∈ A ∧ x ∉ B}</strong></p>
+                        <ul class="custom-list">
+                            <br>
+                            <h3>Conjunto A</h3>
+                            <li> {1, 2, 3, 4}</li>
+                            <h3>Conjunto B</h3>
+                            <li>{3, 4, 5, 6}</li>
+                            <h3>Diferencia conjunto A y B</h3>
+                            <li>A - B= {1, 2}</li>
+                            <div class="example">
+                                <h4>📝 Nota importante:</h4>
+                                La diferencia NO es conmutativa: A - B ≠ B - A<br>
+                                En este ejemplo: B - A = {5, 6}
+                            </div>
+                        </ul>
+                         <div class="example-title">Ejemplo Práctico 2:</div>
+
+                    <ul class="custom-list">
+                        <br>
+                        <h3>Conjunto A</h3>
+                        <li> {a, b, c}</li>
+                        <h3>Conjunto B</h3>
+                        <li>{c, d, e}</li>
+                        <h3>Diferencia conjunto A y B</h3>
+                        <li>A - B = {a, b}</li>
+                    </ul>
+            </div>
+
+            <div class="calculator">
+                <h3>🧮 Calculadora de Diferencia</h3>
+                <div class="input-group">
+                    <label for="diff-a">Conjunto A:</label>
+                    <input type="text" id="diff-a" class="modern-input" placeholder="1, 2, 3, 4">
+                </div>
+                <div class="input-group">
+                    <label for="diff-b">Conjunto B:</label>
+                    <input type="text" id="diff-b" class="modern-input" placeholder="3, 4, 5, 6">
+                </div>
+                <button class="calculate-btn" onclick="calculateDifference()">Calcular A - B</button>
+                <div id="diff-result" class="result-display" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- COMPLEMENTO -->
+           <div class="visual">
+                <div class="set set-a">
+                  
+                <div class="example-box">
+        <div class="operation fade-in-up">
+
+             <h2>🔄 Complemento de Conjuntos</h2>
+            
+            <div class="definition">
+                <strong>Definición:</strong> El complemento de un conjunto A (respecto a un universo U) es el conjunto de todos los elementos del universo que no pertenecen a A.
+            </div>
+            
+            <div class="visual">
+                <div class="set set-a">
+            
+                    <div class="example-box">
+                        <div class="example-title">Ejemplo Práctico 1:</div>
+                        <p><strong>A' = U - A = {x | x ∈ U ∧ x ∉ A}</strong></p>
+                        <ul class="custom-list">
+                            <br>
+                            <h3>Universo</h3>
+                            <li> {1, 2, 3, 4, 5, 6, 7, 8}</li>
+                            <h3>Conjunto A</h3>
+                            <li> {2, 4, 6}</li>
+                            <h3>Complemento de Conjunto A</h3>
+                            <li>A'= {1, 3, 5, 7, 8}</li>
+                        </ul>
+                               <div class="example-title">Ejemplo Práctico 2:</div>
+                    <ul class="custom-list">
+                        <br>
+                        <h3>Universo</h3>
+                            <li>{a, b, c, d, e, f}.</li>
+                            <h3>Conjunto A</h3>
+                            <li> {a, b, c}</li>
+                            <h3>Complemento de Conjunto A</h3>
+                            <li>Aᶜ = {d, e, f}</li>
+                    </ul>
+            </div>
+
+
+            <div class="calculator">
+                <h3>🧮 Calculadora de Complemento</h3>
+                <div class="input-group">
+                    <label for="comp-u">Conjunto Universo U:</label>
+                    <input type="text" id="comp-u" class="modern-input" placeholder="1, 2, 3, 4, 5, 6, 7, 8">
+                </div>
+                <div class="input-group">
+                    <label for="comp-a">Conjunto A:</label>
+                    <input type="text" id="comp-a" class="modern-input" placeholder="2, 4, 6">
+                </div>
+                <button class="calculate-btn" onclick="calculateComplement()">Calcular Complemento A'</button>
+                <div id="comp-result" class="result-display" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- DIFERENCIA SIMÉTRICA -->
+           <div class="visual">
+                <div class="set set-a">
+                  
+                <div class="example-box">
+        <div class="operation fade-in-up">
+
+               <h2>⚖️ Diferencia Simétrica</h2>
+            
+            <div class="definition">
+                <strong>Definición:</strong> La diferencia simétrica de A y B es el conjunto de elementos que pertenecen a A o a B, pero no a ambos.
+            </div>
+            
+            <div class="visual">
+                <div class="set set-a">
+            
+                    <div class="example-box">
+                        <div class="example-title">Ejemplo Práctico 1:</div>
+                        <p><strong>A △ B = (A - B) ∪ (B - A) = (A ∪ B) - (A ∩ B)</strong></p>
+                        <ul class="custom-list">
+                            <br>
+                            <h3>Conjunto A</h3>
+                            <li> {1, 2, 3, 4}</li>
+                            <h3>Conjunto B</h3>
+                            <li> {3, 4, 5, 6}</li>
+                            <h3>Diferencia Simétrica de A △ B</h3>
+                            <li>A △ B= {1, 2, 5, 6}</li>
+                        </ul>
+                         <div class="example">
+                <h4>💡 Propiedades importantes:</h4>
+                • La diferencia simétrica ES conmutativa: A △ B = B △ A<br>
+                • También se puede escribir como: A ⊕ B (XOR)
+            </div>
+                      <div class="example-title">Ejemplo Práctico 2:</div>
+                    <ul class="custom-list">
+                        <br>
+                     <h3>Conjunto A</h3>
+                            <li> {a, b, c}</li>
+                            <h3>Conjunto B</h3>
+                            <li> {c, d, e}</li>
+                            <h3>Diferencia Simétrica de A △ B</h3>
+                            <li>A Δ B = {a, b, d, e}</li>
+                    </ul>
+            </div>
+            </div>
+
+            <div class="calculator">
+                <h3>🧮 Calculadora de Diferencia Simétrica</h3>
+                <div class="input-group">
+                    <label for="sym-a">Conjunto A:</label>
+                    <input type="text" id="sym-a" class="modern-input" placeholder="1, 2, 3, 4">
+                </div>
+                <div class="input-group">
+                    <label for="sym-b">Conjunto B:</label>
+                    <input type="text" id="sym-b" class="modern-input" placeholder="3, 4, 5, 6">
+                </div>
+                <button class="calculate-btn" onclick="calculateSymmetricDifference()">Calcular A △ B</button>
+                <div id="sym-result" class="result-display" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+   </section>
+
+        <script>
+            function parseSet(input) {
+                return new Set(input.split(',').map(item => item.trim()).filter(item => item !== ''));
+            }
+
+            function setToString(set) {
+                return '{' + Array.from(set).sort().join(', ') + '}';
+            }
+
+            function calculateUnion() {
+                const setA = parseSet(document.getElementById('union-a').value);
+                const setB = parseSet(document.getElementById('union-b').value);
+                const result = new Set([...setA, ...setB]);
+
+                const resultDiv = document.getElementById('union-result');
+                resultDiv.innerHTML = `
+                <strong>Resultado:</strong><br>
+                A = ${setToString(setA)}<br>
+                B = ${setToString(setB)}<br>
+                A ∪ B = ${setToString(result)}
+            `;
+                resultDiv.style.display = 'block';
+            }
+
+            function calculateIntersection() {
+                const setA = parseSet(document.getElementById('intersect-a').value);
+                const setB = parseSet(document.getElementById('intersect-b').value);
+                const result = new Set([...setA].filter(x => setB.has(x)));
+
+                const resultDiv = document.getElementById('intersect-result');
+                resultDiv.innerHTML = `
+                <strong>Resultado:</strong><br>
+                A = ${setToString(setA)}<br>
+                B = ${setToString(setB)}<br>
+                A ∩ B = ${setToString(result)}
+            `;
+                resultDiv.style.display = 'block';
+            }
+
+            function calculateDifference() {
+                const setA = parseSet(document.getElementById('diff-a').value);
+                const setB = parseSet(document.getElementById('diff-b').value);
+                const result = new Set([...setA].filter(x => !setB.has(x)));
+
+                const resultDiv = document.getElementById('diff-result');
+                resultDiv.innerHTML = `
+                <strong>Resultado:</strong><br>
+                A = ${setToString(setA)}<br>
+                B = ${setToString(setB)}<br>
+                A - B = ${setToString(result)}
+            `;
+                resultDiv.style.display = 'block';
+            }
+
+            function calculateComplement() {
+                const universeU = parseSet(document.getElementById('comp-u').value);
+                const setA = parseSet(document.getElementById('comp-a').value);
+                const result = new Set([...universeU].filter(x => !setA.has(x)));
+
+                const resultDiv = document.getElementById('comp-result');
+                resultDiv.innerHTML = `
+                <strong>Resultado:</strong><br>
+                U = ${setToString(universeU)}<br>
+                A = ${setToString(setA)}<br>
+                A' = ${setToString(result)}
+            `;
+                resultDiv.style.display = 'block';
+            }
+
+            function calculateSymmetricDifference() {
+                const setA = parseSet(document.getElementById('sym-a').value);
+                const setB = parseSet(document.getElementById('sym-b').value);
+                const aDiffB = new Set([...setA].filter(x => !setB.has(x)));
+                const bDiffA = new Set([...setB].filter(x => !setA.has(x)));
+                const result = new Set([...aDiffB, ...bDiffA]);
+
+                const resultDiv = document.getElementById('sym-result');
+                resultDiv.innerHTML = `
+                <strong>Resultado:</strong><br>
+                A = ${setToString(setA)}<br>
+                B = ${setToString(setB)}<br>
+                A △ B = ${setToString(result)}<br>
+                <small>(A - B) ∪ (B - A) = ${setToString(aDiffB)} ∪ ${setToString(bDiffA)}</small>
+            `;
+                resultDiv.style.display = 'block';
+            }
+
+            // Agregar efectos de entrada suaves
+            window.addEventListener('load', function () {
+                const operations = document.querySelectorAll('.operation');
+                operations.forEach((op, index) => {
+                    op.style.opacity = '0';
+                    op.style.transform = 'translateY(50px)';
+                    setTimeout(() => {
+                        op.style.transition = 'all 0.6s ease';
+                        op.style.opacity = '1';
+                        op.style.transform = 'translateY(0)';
+                    }, index * 200);
+                });
+            });
+        </script>
+
+        <!-- Ejemplo visual-->
+        <section id="Ejemplos" class="content-card fade-in-up">
+            <h2 class="card-title">Ejemplos visuales</h2>
+            <div class="card-content">
+                <p>Explora operaciones entre conjuntos de manera interactiva
+                </p>
+
+
+                <div class="container">
+                    <div class="panel">
+                        <h2 class="panel-title">Controles</h2>
+
+                        <div class="input-group">
+                            <label class="label">Conjunto A (separado por comas):</label>
+                            <input type="text" id="setA" class="input" placeholder="1, 2, 3, 4, 5"
+                                value="1, 2, 3, 4, 5">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="label">Conjunto B (separado por comas):</label>
+                            <input type="text" id="setB" class="input" placeholder="4, 5, 6, 7, 8"
+                                value="4, 5, 6, 7, 8">
+                        </div>
+
+                        <div class="buttons">
+                            <button class="btn" onclick="performOperation('union')">A ∪ B (Unión)</button>
+                            <button class="btn" onclick="performOperation('intersection')">A ∩ B (Intersección)</button>
+                            <button class="btn" onclick="performOperation('differenceAB')">A - B (Diferencia)</button>
+                            <button class="btn" onclick="performOperation('differenceBA')">B - A (Diferencia)</button>
+                            <button class="btn" onclick="performOperation('symmetric')">A △ B (Simétrica)</button>
+                        </div>
+
+                        <div class="result" id="result">
+                            Selecciona una operación para ver el resultado
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h2 class="panel-title">Diagrama de Venn</h2>
+
+                        <div class="svg-container">
+                            <svg class="venn-svg" width="350" height="250" viewBox="0 0 350 250">
+                                <!-- Conjunto A -->
+                                <circle id="circleA" cx="120" cy="125" r="80" fill="rgba(255, 105, 180, 0.2)"
+                                    stroke="#FF69B4" stroke-width="3" class="set-circle" />
+
+                                <!-- Conjunto B -->
+                                <circle id="circleB" cx="230" cy="125" r="80" fill="rgba(2, 255, 230, 0.2)"
+                                    stroke="#02ffe6" stroke-width="3" class="set-circle" />
+
+                                <!-- Etiquetas -->
+                                <text x="80" y="80" class="set-label" fill="#FF69B4">A</text>
+                                <text x="270" y="80" class="set-label" fill="#02ffe6">B</text>
+
+                                <!-- Elementos dinámicos -->
+                                <g id="elementsA"></g>
+                                <g id="elementsB"></g>
+                                <g id="elementsIntersection"></g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    let setA = new Set();
+                    let setB = new Set();
+                    let currentOperation = null;
+
+                    function parseSet(input) {
+                        return new Set(input.split(',').map(item => item.trim()).filter(item => item));
+                    }
+
+                    function updateSets() {
+                        setA = parseSet(document.getElementById('setA').value);
+                        setB = parseSet(document.getElementById('setB').value);
+                        visualizeSets();
+                    }
+
+                    function visualizeSets() {
+                        const elementsA = document.getElementById('elementsA');
+                        const elementsB = document.getElementById('elementsB');
+                        const elementsIntersection = document.getElementById('elementsIntersection');
+
+                        // Limpiar elementos anteriores
+                        elementsA.innerHTML = '';
+                        elementsB.innerHTML = '';
+                        elementsIntersection.innerHTML = '';
+
+                        const intersection = new Set([...setA].filter(x => setB.has(x)));
+                        const onlyA = new Set([...setA].filter(x => !setB.has(x)));
+                        const onlyB = new Set([...setB].filter(x => !setA.has(x)));
+
+                        // Posicionar elementos
+                        let yPos = 110;
+                        let xPosA = 70;
+                        let xPosB = 280;
+                        let xPosInter = 175;
+
+                        // Solo en A
+                        [...onlyA].forEach((element, i) => {
+                            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            text.setAttribute('x', xPosA);
+                            text.setAttribute('y', yPos + (i * 15));
+                            text.setAttribute('fill', '#FF69B4');
+                            text.setAttribute('font-size', '12');
+                            text.setAttribute('text-anchor', 'middle');
+                            text.textContent = element;
+                            elementsA.appendChild(text);
+                        });
+
+                        // Solo en B
+                        [...onlyB].forEach((element, i) => {
+                            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            text.setAttribute('x', xPosB);
+                            text.setAttribute('y', yPos + (i * 15));
+                            text.setAttribute('fill', '#02ffe6');
+                            text.setAttribute('font-size', '12');
+                            text.setAttribute('text-anchor', 'middle');
+                            text.textContent = element;
+                            elementsB.appendChild(text);
+                        });
+
+                        // Intersección
+                        [...intersection].forEach((element, i) => {
+                            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            text.setAttribute('x', xPosInter);
+                            text.setAttribute('y', yPos + (i * 15));
+                            text.setAttribute('fill', '#FFFFFF');
+                            text.setAttribute('font-size', '12');
+                            text.setAttribute('text-anchor', 'middle');
+                            text.textContent = element;
+                            elementsIntersection.appendChild(text);
+                        });
+                    }
+
+                    function performOperation(operation) {
+                        updateSets();
+
+                        // Limpiar botones activos
+                        document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+                        event.target.classList.add('active');
+
+                        let result = [];
+                        let resultText = '';
+
+                        switch (operation) {
+                            case 'union':
+                                result = [...new Set([...setA, ...setB])];
+                                resultText = `A ∪ B = {${result.join(', ')}}`;
+                                highlightSets(['both']);
+                                break;
+
+                            case 'intersection':
+                                result = [...setA].filter(x => setB.has(x));
+                                resultText = `A ∩ B = {${result.join(', ')}}`;
+                                highlightSets(['intersection']);
+                                break;
+
+                            case 'differenceAB':
+                                result = [...setA].filter(x => !setB.has(x));
+                                resultText = `A - B = {${result.join(', ')}}`;
+                                highlightSets(['onlyA']);
+                                break;
+
+                            case 'differenceBA':
+                                result = [...setB].filter(x => !setA.has(x));
+                                resultText = `B - A = {${result.join(', ')}}`;
+                                highlightSets(['onlyB']);
+                                break;
+
+                            case 'symmetric':
+                                const unionSet = new Set([...setA, ...setB]);
+                                const intersectionSet = new Set([...setA].filter(x => setB.has(x)));
+                                result = [...unionSet].filter(x => !intersectionSet.has(x));
+                                resultText = `A △ B = {${result.join(', ')}}`;
+                                highlightSets(['symmetric']);
+                                break;
+                        }
+
+                        document.getElementById('result').innerHTML = `
+                <div>
+                    <strong>${resultText}</strong><br>
+                    <div style="margin-top: 0.5rem;">
+                        ${result.map(item => `<span class="element-tag">${item}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+                    }
+
+                    function highlightSets(highlights) {
+                        const circleA = document.getElementById('circleA');
+                        const circleB = document.getElementById('circleB');
+
+                        // Reset
+                        circleA.style.fill = 'rgba(255, 105, 180, 0.2)';
+                        circleB.style.fill = 'rgba(2, 255, 230, 0.2)';
+
+                        highlights.forEach(highlight => {
+                            switch (highlight) {
+                                case 'both':
+                                    circleA.style.fill = 'rgba(255, 105, 180, 0.4)';
+                                    circleB.style.fill = 'rgba(2, 255, 230, 0.4)';
+                                    break;
+                                case 'intersection':
+                                    circleA.style.fill = 'rgba(255, 255, 255, 0.3)';
+                                    circleB.style.fill = 'rgba(255, 255, 255, 0.3)';
+                                    break;
+                                case 'onlyA':
+                                    circleA.style.fill = 'rgba(255, 105, 180, 0.5)';
+                                    break;
+                                case 'onlyB':
+                                    circleB.style.fill = 'rgba(2, 255, 230, 0.5)';
+                                    break;
+                                case 'symmetric':
+                                    circleA.style.fill = 'rgba(255, 105, 180, 0.4)';
+                                    circleB.style.fill = 'rgba(2, 255, 230, 0.4)';
+                                    break;
+                            }
+                        });
+                    }
+
+                    // Event listeners
+                    document.getElementById('setA').addEventListener('input', updateSets);
+                    document.getElementById('setB').addEventListener('input', updateSets);
+
+                    // Inicializar
+                    updateSets();
+                </script>
+                </section>
+            </body>
+            </html>
